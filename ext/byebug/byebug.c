@@ -1,5 +1,12 @@
 #include "byebug.h"
 
+int hogehoge(rb_trace_arg_t *trace_arg);
+
+int hogehoge(rb_trace_arg_t *trace_arg) {
+  int a = 123;
+  return a;
+}
+
 static VALUE mByebug; /* Ruby Byebug Module object */
 
 static VALUE tracing = Qfalse;
@@ -161,7 +168,11 @@ cleanup(debug_context_t *dc)
 
 #define CALL_EVENT_SETUP   \
   dc->calced_stack_size++; \
-  dc->steps_out = dc->steps_out < 0 ? -1 : dc->steps_out + 1;
+  if (dc->steps_out < 0) { \
+    dc->steps_out = -1; \
+  } else { \
+    dc->steps_out = dc->steps_out + 1; \
+  }
 
 #define RETURN_EVENT_SETUP \
   dc->calced_stack_size--; \
@@ -170,7 +181,12 @@ cleanup(debug_context_t *dc)
     dc->steps = 1;
 
 #define RETURN_EVENT_TEARDOWN \
-  dc->steps_out = dc->steps_out <= 0 ? -1 : dc->steps_out - 1;
+  if (dc->steps_out <= 0) { \
+    dc->steps_out = -1; \
+  } else { \
+    dc->steps_out = dc->steps_out - 1; \
+    hogehoge(trace_arg); \
+  }
 
 
 /* Functions that return control to byebug after the different events */
